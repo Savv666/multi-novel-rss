@@ -19,6 +19,7 @@ TRY_FULL_CRAWL_IN_ONE_RUN = False
 MAX_RETRIES = 5
 RETRY_BACKOFF_BASE = 2
 
+INPUT_LINKS_FILE = "novel-links.txt"
 NOVELS_FILE = "novels.json"
 STATE_DIR = "state"
 DOCS_DIR = "docs"
@@ -51,6 +52,92 @@ def safe_get(url: str, retries: int = MAX_RETRIES) -> str:
 
 def normalize_url(url: str) -> str:
     return url.split("#")[0].strip()
+
+
+def slugify(text: str) -> str:
+    text = text.lower().strip()
+    text = re.sub(r"^https?://", "", text)
+    text = re.sub(r"^www\.", "", text)
+    text = re.sub(r"[^a-z0-9]+", "-", text)
+    text = re.sub(r"-+", "-", text).strip("-")
+    return text[:80] if text else "novel"
+
+
+def slug_from_url(url: str) -> str:
+    parsed = urlparse(url)
+    host = parsed.netloc.lower()
+    path = parsed.path.strip("/")
+
+    if "novelfull.net" in host:
+        parts = path.split("/")
+        if parts:
+            first = parts[0]
+            first = first.replace(".html", "")
+            return slugify(first)
+
+    if "wuxiaworld.com" in host:
+        parts = path.split("/")
+        if len(parts) >= 2 and parts[0] == "novel":
+            return slugify(parts[1])
+
+    if path:
+        return slugify(path.split("/")[0])
+
+    return slugify(host)
+
+
+def read_input_links():
+    if not os.path.exists(INPUT_LINKS_FILE):
+        return []
+
+    links = []
+    with open(INPUT_LINKS_FILE, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            if line.startswith("#"):
+                continue
+            links.append(normalize_url(line))
+
+    # remove duplicates while keeping order
+    seen = set()
+    result = []
+    for link in links:
+        if link not in seen:
+            seen.add(link)
+            result.append(link)
+
+    return result
+
+
+def sync_novels_file():
+    links = read_input_links()
+
+    novels = []
+    used_slugs = set()
+
+    for link in links:
+        base_slug = slug_from_url(link)
+        slug = base_slug
+        counter = 2
+
+        while slug in used_slugs:
+            slug = f"{base_slug}-{counter}"
+            counter += 1
+
+        used_slugs.add(slug)
+
+        novels.append({
+            "slug": slug,
+            "start_url": link
+        })
+
+    with open(NOVELS_FILE, "w", encoding="utf-8") as f:
+        json.dump(novels, f, ensure_ascii=False, indent=2)
+
+    print(f"Updated {NOVELS_FILE} from {INPUT_LINKS_FILE}")
+    return novels
 
 
 def get_soup(url: str) -> BeautifulSoup:
@@ -351,8 +438,7 @@ def build_index(novels):
 
 
 def main():
-    with open(NOVELS_FILE, "r", encoding="utf-8") as f:
-        novels = json.load(f)
+    novels = sync_novels_file()
 
     for novel in novels:
         slug = novel["slug"]
