@@ -13,25 +13,39 @@ HEADERS = {
 }
 
 TIMEOUT = 25
-REQUEST_DELAY = 1.0
+REQUEST_DELAY = 1.5
 BATCH_SIZE = 100
 TRY_FULL_CRAWL_IN_ONE_RUN = False
+MAX_RETRIES = 5
+RETRY_BACKOFF_BASE = 2
 
 NOVELS_FILE = "novels.json"
 STATE_DIR = "state"
 DOCS_DIR = "docs"
 
 
-def safe_get(url: str, retries: int = 4) -> str:
+def safe_get(url: str, retries: int = MAX_RETRIES) -> str:
     last_err = None
+
     for attempt in range(retries):
         try:
             r = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
+
+            if r.status_code in (429, 500, 502, 503, 504):
+                raise requests.HTTPError(f"Temporary HTTP error {r.status_code}")
+
             r.raise_for_status()
             return r.text
+
         except requests.RequestException as e:
             last_err = e
-            time.sleep(2 ** attempt)
+            wait_time = RETRY_BACKOFF_BASE ** attempt
+            print(f"Request failed for {url}")
+            print(f"Attempt {attempt + 1}/{retries}")
+            print(f"Error: {e}")
+            print(f"Waiting {wait_time} seconds before retrying...")
+            time.sleep(wait_time)
+
     raise last_err
 
 
@@ -243,11 +257,20 @@ def crawl(state: dict, start_url: str):
 
     while current_url:
         if current_url in visited:
+            print(f"Already visited: {current_url}")
             state["next_to_crawl"] = None
             state["crawl_complete"] = True
             break
 
-        data = extract_page_data(current_url)
+        try:
+            data = extract_page_data(current_url)
+        except Exception as e:
+            print(f"Failed to process chapter page: {current_url}")
+            print(f"Error: {e}")
+            print("Stopping this run safely. Next run will retry from the same chapter.")
+            state["next_to_crawl"] = current_url
+            state["visited"] = visited
+            return state
 
         visited[current_url] = {
             "url": data["url"],
@@ -268,11 +291,13 @@ def crawl(state: dict, start_url: str):
         print(f'Fetched {pages_fetched_this_run}: {data["chapter_title"]}')
 
         if not next_url:
+            print("No next chapter found. Crawl complete.")
             state["next_to_crawl"] = None
             state["crawl_complete"] = True
             break
 
         if not TRY_FULL_CRAWL_IN_ONE_RUN and pages_fetched_this_run >= BATCH_SIZE:
+            print(f"Stopping after batch of {BATCH_SIZE} pages. Will continue on next run.")
             break
 
         current_url = next_url
