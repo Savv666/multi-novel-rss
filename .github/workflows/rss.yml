@@ -3,7 +3,7 @@ name: Build RSS and EPUB
 on:
   workflow_dispatch:
   schedule:
-    - cron: "15 */6 * * *"
+    - cron: "0 * * * *"
 
 permissions:
   contents: write
