@@ -27,16 +27,18 @@ jobs:
       - name: Build feeds
         run: python generate_all_feeds.py
 
-      - name: Build EPUB books
-        run: python build_epub.py
+      - name: Build EPUBs from feeds
+        run: python build_epubs_from_feeds.py
 
       - name: Ensure .nojekyll exists
-        run: touch docs/.nojekyll
+        run: |
+          mkdir -p docs
+          touch docs/.nojekyll
 
       - name: Commit updated files
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add docs state
+          git add docs state novels.json novel-links.txt
           git commit -m "Update RSS feeds and EPUB books" || exit 0
           git push
