@@ -1,0 +1,47 @@
+name: Build Novel Library
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download novels
+        run: python download_novels.py
+
+      - name: Generate RSS feeds
+        run: python generate_rss.py
+
+      - name: Build library page
+        run: python build_library_page.py
+
+      - name: Create .nojekyll to disable Jekyll
+        run: |
+          mkdir -p docs
+          touch docs/.nojekyll
+
+      - name: Commit changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add docs manual-books novel-links.txt
+          git commit -m "Automated update of novels, library page and feeds" || echo "No changes to commit"
+          git push
