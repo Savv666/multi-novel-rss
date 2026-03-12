@@ -1,2 +1,7 @@
-https://novelfull.net/cultivation-online-novel/chapter-1-cultivation-online.html
-https://www.wuxiaworld.com/novel/nine-star-hegemon
+# One link per line.
+# Best with FanFicFare-supported sites like RoyalRoad, ScribbleHub, AO3, FanFiction.net and many others.
+# Some sites may fail because of anti-bot or login requirements.
+# For failed sites, place your own EPUB file in manual-books/.
+
+https://www.royalroad.com/fiction/21220/mother-of-learning
+https://novelfull.net/cultivation-online.html
