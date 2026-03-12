@@ -1,5 +1,7 @@
+fanficfare
 requests
 beautifulsoup4
-feedgen
-feedparser
+jinja2
 ebooklib
+feedparser
+feedgen
