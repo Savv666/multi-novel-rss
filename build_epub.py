@@ -98,9 +98,11 @@ def load_slugs():
 def write_epub_links_file(slugs):
     txt_path = os.path.join(DOCS_DIR, "epub-links.txt")
     md_path = os.path.join(DOCS_DIR, "epub-links.md")
+    html_path = os.path.join(DOCS_DIR, "epub-links.html")
 
     txt_lines = []
-    md_lines = ["# EPUB Links", ""]
+    md_lines = ["# EPUB Links", "", "- Open OPDS Catalogue: {}/opds.xml".format(BASE_URL)]
+    html_lines = ["<html><head><meta charset=\"utf-8\"><title>EPUB Links</title></head><body>","<h1>Direct EPUB Links</h1>",f"<p><a href=\"opds.xml\">Open OPDS Catalogue</a></p>","<ul>"]
 
     for slug in slugs:
         epub_path = os.path.join(DOCS_DIR, slug, "book.epub")
@@ -108,6 +110,7 @@ def write_epub_links_file(slugs):
             url = f"{BASE_URL}/{slug}/book.epub"
             txt_lines.append(f"{slug}: {url}")
             md_lines.append(f"- {slug}: {url}")
+            html_lines.append(f"<li><a href=\"{url}\">{slug}</a></li>")
 
     with open(txt_path, "w", encoding="utf-8") as f:
         f.write("\n".join(txt_lines) + ("\n" if txt_lines else ""))
@@ -115,8 +118,13 @@ def write_epub_links_file(slugs):
     with open(md_path, "w", encoding="utf-8") as f:
         f.write("\n".join(md_lines) + "\n")
 
+    html_lines += ["</ul>", "</body></html>"]
+    with open(html_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(html_lines) + "\n")
+
     print(f"Wrote {txt_path}")
     print(f"Wrote {md_path}")
+    print(f"Wrote {html_path}")
 
 
 def main():

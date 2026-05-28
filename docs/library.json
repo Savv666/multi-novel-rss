@@ -1,0 +1,53 @@
+{
+  "novels": [
+    {
+      "slug": "cultivation-online",
+      "title": "Cultivation Online",
+      "source": "NovelFull",
+      "status": "Built",
+      "cover": "",
+      "created_at": "2026-01-01T00:00:00Z",
+      "last_updated": "2026-01-02T00:00:00Z",
+      "downloads": [
+        {
+          "epub": "cultivation-online/book.epub",
+          "start_chapter": 1,
+          "end_chapter": 100,
+          "created_at": "2026-01-02T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "slug": "cultivation-online-novel",
+      "title": "Cultivation Online Novel",
+      "source": "WuxiaWorld",
+      "status": "Partial",
+      "created_at": "2026-01-03T00:00:00Z",
+      "last_updated": "2026-01-04T00:00:00Z",
+      "downloads": [
+        {
+          "epub": "cultivation-online-novel/book.epub",
+          "start_chapter": 101,
+          "end_chapter": 200,
+          "created_at": "2026-01-04T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "slug": "nine-star-hegemon",
+      "title": "Nine Star Hegemon",
+      "source": "RoyalRoad",
+      "status": "Complete",
+      "created_at": "2026-01-05T00:00:00Z",
+      "last_updated": "2026-01-06T00:00:00Z",
+      "downloads": [
+        {
+          "epub": "nine-star-hegemon/book.epub",
+          "start_chapter": 1,
+          "end_chapter": 120,
+          "created_at": "2026-01-06T00:00:00Z"
+        }
+      ]
+    }
+  ]
+}
