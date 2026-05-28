@@ -421,14 +421,14 @@ def build_feed(slug: str, state: dict):
 def build_index(novels):
     os.makedirs(DOCS_DIR, exist_ok=True)
     lines = [
-        "<html><body>",
+        '<html><head><meta charset="utf-8"><title>Novel RSS Feeds</title><link rel="stylesheet" href="style.css"></head><body>',
         "<h1>Novel RSS Feeds</h1>",
         "<ul>"
     ]
     for n in novels:
         slug = n["slug"]
         lines.append(f'<li><a href="{slug}/feed.xml">{slug}</a></li>')
-    lines += ["</ul>", "</body></html>"]
+    lines += ["</ul>", '<footer><p><a class="rss-link" href="opds.xml">OPDS Catalogue</a> · <a class="rss-link" href="epub-links.html">Direct EPUB Links</a></p></footer>', "</body></html>"]
 
     with open(os.path.join(DOCS_DIR, "index.html"), "w", encoding="utf-8") as f:
         f.write("\n".join(lines))

@@ -1,0 +1,3 @@
+body { font-family: Arial, sans-serif; max-width: 860px; margin: 0 auto; padding: 1rem; line-height: 1.5; }
+.rss-link { color: #0366d6; text-decoration: none; }
+.rss-link:hover { text-decoration: underline; }
